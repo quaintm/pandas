@@ -11225,6 +11225,7 @@ ENGINES = 'python', 'numexpr'
 
 class TestDataFrameQueryStrings(object):
     def check_str_query_method(self, parser, engine):
+        skip_if_no_ne(engine)
         df = DataFrame(randn(10, 1), columns=['b'])
         df['strings'] = Series(list('aabbccddee'))
         expect = df[df.strings == 'a']
@@ -11240,6 +11241,7 @@ class TestDataFrameQueryStrings(object):
             yield self.check_str_list_query_method, parser, engine
 
     def check_str_list_query_method(self, parser, engine):
+        skip_if_no_ne(engine)
         df = DataFrame(randn(10, 1), columns=['b'])
         df['strings'] = Series(list('aabbccddee'))
         expect = df[df.strings.isin(['a', 'b'])]
