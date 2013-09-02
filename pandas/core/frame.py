@@ -348,7 +348,7 @@ class DataFrame(NDFrame):
         Index to use for resulting frame. Will default to np.arange(n) if
         no indexing information part of input data and no index provided
     columns : Index or array-like
-        Column labels to use for resulting frame. Will default to 
+        Column labels to use for resulting frame. Will default to
         np.arange(n) if no column labels are provided
     dtype : dtype, default None
         Data type to force, otherwise infer
@@ -1980,7 +1980,7 @@ class DataFrame(NDFrame):
                 index_resolvers[self.index.name] = self.index
             index_resolvers.update({'index': self.index,
                                     'columns': self.columns})
-            resolvers = [self, index_resolvers]
+            resolvers = [index_resolvers, self]
         kwargs['local_dict'] = _ensure_scope(resolvers=resolvers, **kwargs)
         return _eval(expr, **kwargs)
 
