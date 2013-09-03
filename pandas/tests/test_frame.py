@@ -11379,6 +11379,19 @@ class TestDataFrameQueryStrings(object):
         res = df['["a", "b"] != strings']
         assert_frame_equal(res, expect)
 
+    def test_query_with_string_columns(self):
+        df = DataFrame({'a': list('aaaabbbbcccc'),
+                        'b': list('aabbccddeeff'),
+                        'c': np.random.randint(5, size=12),
+                        'd': np.random.randint(9, size=12)})
+        res = df['a in b']
+        expec = df[df.b.isin(df.a)]
+        assert_frame_equal(res, expec)
+
+        res = df['a in b and c < d']
+        expec = df[df.b.isin(df.a) & (df.c < df.d)]
+        assert_frame_equal(res, expec)
+
 
 class TestDataFrameEvalNumExprPandas(unittest.TestCase):
     @classmethod
