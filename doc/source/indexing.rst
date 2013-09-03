@@ -950,10 +950,11 @@ convert to an integer index:
 
 .. _indexing.query:
 
-.. versionadded:: 0.13
-
 The :meth:`~pandas.DataFrame.query` Method
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.13
+
 :class:`~pandas.DataFrame` objects have a :meth:`~pandas.DataFrame.query`
 method that allows selection using a string consisting of columns of the
 calling :class:`~pandas.DataFrame`.
@@ -984,6 +985,26 @@ with the name ``a``.
    df
    df.query('a < b and b < c')
 
+If instead you don't want to or cannot name your index, you can use the name
+``index`` in your query expression:
+
+.. ipython:: python
+   :suppress:
+
+   old_index = index
+   del index
+
+.. ipython:: python
+
+   df = DataFrame(randint(n, size=(n, 2)), columns=list('bc'))
+   df
+   df.query('index < b < c')
+
+.. ipython:: python
+   :suppress:
+
+   index = old_index
+
 A use case for :meth:`~pandas.DataFrame.query` is when you have a collection of
 :class:`~pandas.DataFrame` s that have a subset of column names (or index
 names) in common. You can pass the same query to both frames *without* having
@@ -991,6 +1012,8 @@ to specify which frame you're interested in querying
 
 .. ipython:: python
 
+   df = DataFrame(randint(n, size=(n, 2)), columns=list('bc'))
+   df.index.name = 'a'
    df2 = DataFrame(randint(n + 10, size=(n + 10, 3)), columns=list('abc'))
    df2
    expr = 'a < b & b < c'
@@ -1015,6 +1038,7 @@ Full numpy-like syntax
 
 .. ipython:: python
 
+   df = DataFrame(randint(n, size=(n, 3)), columns=list('abc'))
    df['(a < b) & (b < c)']
 
 Slightly nicer by removing the parentheses
