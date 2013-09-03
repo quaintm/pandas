@@ -763,7 +763,7 @@ class TestOperationsNumExprPandas(unittest.TestCase):
         return pd.eval(*args, **kwargs)
 
     def test_simple_arith_ops(self):
-        ops = expr._arith_ops_syms + expr._cmp_ops_syms
+        ops = self.arith_ops
 
         for op in filter(lambda x: x != '//', ops):
             ex = '1 {0} 1'.format(op)
@@ -1043,6 +1043,7 @@ class TestOperationsPythonPandas(TestOperationsNumExprPandas):
     def setUpClass(cls):
         cls.engine = 'python'
         cls.parser = 'pandas'
+        cls.arith_ops = expr._arith_ops_syms + expr._cmp_ops_syms
 
 
 _var_s = randn(10)
