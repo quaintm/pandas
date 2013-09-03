@@ -7,8 +7,9 @@ from datetime import datetime, timedelta, time
 import operator
 import re
 import unittest
-import nose
 from itertools import product
+
+import nose
 
 from pandas.compat import(
     map, zip, range, long, lrange, lmap, lzip,
@@ -38,6 +39,7 @@ from pandas.util.testing import (assert_almost_equal,
                                  assert_series_equal,
                                  assert_frame_equal,
                                  assertRaisesRegexp,
+                                 assertRaises,
                                  makeCustomDataframe as mkdf,
                                  ensure_clean)
 
@@ -11258,14 +11260,18 @@ ENGINES = 'python', 'numexpr'
 
 class TestDataFrameQueryStrings(object):
     def check_str_query_method(self, parser, engine):
-        skip_if_no_ne()
-        skip_if_no_pandas_parser(parser)
+        skip_if_no_ne(engine)
         df = DataFrame(randn(10, 1), columns=['b'])
         df['strings'] = Series(list('aabbccddee'))
         expect = df[df.strings == 'a']
-        res = df.query('strings == "a"', engine=engine, parser=parser)
-        assert_frame_equal(res, expect)
-        assert_frame_equal(res, df[df.strings.isin(['a'])])
+
+        if parser != 'pandas':
+            assertRaises(NotImplementedError, df.query, 'strings == "a"',
+                         engine=engine, parser=parser)
+        else:
+            res = df.query('strings == "a"', engine=engine, parser=parser)
+            assert_frame_equal(res, expect)
+            assert_frame_equal(res, df[df.strings.isin(['a'])])
 
     def test_str_query_method(self):
         for parser, engine in product(PARSERS, ENGINES):
@@ -11276,15 +11282,20 @@ class TestDataFrameQueryStrings(object):
             yield self.check_str_list_query_method, parser, engine
 
     def check_str_list_query_method(self, parser, engine):
-        skip_if_no_ne()
-        skip_if_no_pandas_parser(parser)
+        skip_if_no_ne(engine)
         df = DataFrame(randn(10, 1), columns=['b'])
         df['strings'] = Series(list('aabbccddee'))
         expect = df[df.strings.isin(['a', 'b'])]
-        res = df.query('strings == ["a", "b"]', engine=engine, parser=parser)
-        assert_frame_equal(res, expect)
 
-    def test_str_query(self):
+        if parser != 'pandas':
+            assertRaises(NotImplementedError, df.query,
+                         'strings == ["a", "b"]', engine=engine, parser=parser)
+        else:
+            res = df.query('strings == ["a", "b"]', engine=engine,
+                           parser=parser)
+            assert_frame_equal(res, expect)
+
+    def test_str_query_getitem(self):
         skip_if_no_ne()
         df = DataFrame(randn(10, 1), columns=['b'])
         df['strings'] = Series(list('aabbccddee'))
@@ -11295,15 +11306,30 @@ class TestDataFrameQueryStrings(object):
         res = df['"a" == strings']
         assert_frame_equal(res, expect)
 
-    def test_str_query_list(self):
+        expect = df[df.strings != 'a']
+        res = df['strings != "a"']
+        assert_frame_equal(res, expect)
+
+        res = df['"a" != strings']
+        assert_frame_equal(res, expect)
+
+    def test_str_query_list_getitem(self):
         skip_if_no_ne()
         df = DataFrame(randn(10, 1), columns=['b'])
         df['strings'] = Series(list('aabbccddee'))
+
         expect = df[df.strings.isin(['a', 'b'])]
         res = df['strings == ["a", "b"]']
         assert_frame_equal(res, expect)
 
         res = df['["a", "b"] == strings']
+        assert_frame_equal(res, expect)
+
+        expect = df[~df.strings.isin(['a', 'b'])]
+        res = df['strings != ["a", "b"]']
+        assert_frame_equal(res, expect)
+
+        res = df['["a", "b"] != strings']
         assert_frame_equal(res, expect)
 
 
