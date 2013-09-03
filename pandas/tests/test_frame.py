@@ -11266,12 +11266,34 @@ class TestDataFrameQueryStrings(object):
         expect = df[df.strings == 'a']
 
         if parser != 'pandas':
-            assertRaises(NotImplementedError, df.query, 'strings == "a"',
-                         engine=engine, parser=parser)
+            col = 'strings'
+            lst = '"a"'
+
+            lhs = [col] * 2 + [lst] * 2
+            rhs = lhs[::-1]
+
+            eq, ne = '==', '!='
+            ops = 2 * ([eq] + [ne])
+
+            for lhs, op, rhs in zip(lhs, ops, rhs):
+                ex = '{lhs} {op} {rhs}'.format(lhs=lhs, op=op, rhs=rhs)
+                assertRaises(NotImplementedError, df.query, ex, engine=engine,
+                             parser=parser, local_dict={'strings': df.strings})
         else:
+            res = df.query('"a" == strings', engine=engine, parser=parser)
+            assert_frame_equal(res, expect)
+
             res = df.query('strings == "a"', engine=engine, parser=parser)
             assert_frame_equal(res, expect)
             assert_frame_equal(res, df[df.strings.isin(['a'])])
+
+            expect = df[df.strings != 'a']
+            res = df.query('strings != "a"', engine=engine, parser=parser)
+            assert_frame_equal(res, expect)
+
+            res = df.query('"a" != strings', engine=engine, parser=parser)
+            assert_frame_equal(res, expect)
+            assert_frame_equal(res, df[~df.strings.isin(['a'])])
 
     def test_str_query_method(self):
         for parser, engine in product(PARSERS, ENGINES):
@@ -11288,10 +11310,35 @@ class TestDataFrameQueryStrings(object):
         expect = df[df.strings.isin(['a', 'b'])]
 
         if parser != 'pandas':
-            assertRaises(NotImplementedError, df.query,
-                         'strings == ["a", "b"]', engine=engine, parser=parser)
+            col = 'strings'
+            lst = '["a", "b"]'
+
+            lhs = [col] * 2 + [lst] * 2
+            rhs = lhs[::-1]
+
+            eq, ne = '==', '!='
+            ops = 2 * ([eq] + [ne])
+
+            for lhs, op, rhs in zip(lhs, ops, rhs):
+                ex = '{lhs} {op} {rhs}'.format(lhs=lhs, op=op, rhs=rhs)
+                assertRaises(NotImplementedError, df.query, ex, engine=engine,
+                             parser=parser, local_dict={'strings': df.strings})
         else:
             res = df.query('strings == ["a", "b"]', engine=engine,
+                           parser=parser)
+            assert_frame_equal(res, expect)
+
+            res = df.query('["a", "b"] == strings', engine=engine,
+                           parser=parser)
+            assert_frame_equal(res, expect)
+
+            expect = df[~df.strings.isin(['a', 'b'])]
+
+            res = df.query('strings != ["a", "b"]', engine=engine,
+                           parser=parser)
+            assert_frame_equal(res, expect)
+
+            res = df.query('["a", "b"] != strings', engine=engine,
                            parser=parser)
             assert_frame_equal(res, expect)
 
