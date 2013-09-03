@@ -1039,6 +1039,62 @@ As you can see, these are all equivalent ways to express the same operation (in
 fact, they are all ultimately parsed into something very similar to the first
 example of the indexing syntax above).
 
+:meth:`~pandas.DataFrame.query` also supports special use of Python's ``in`` and
+``not in`` comparison operators, providing a succint syntax for calling the
+``isin`` method of a ``Series`` or ``DataFrame``.
+
+.. ipython:: python
+   :suppress:
+
+   old_d = d
+   del d
+
+.. ipython:: python
+
+   # get all rows where columns "a" and "b" have overlapping values
+   df = DataFrame({'a': list('aaaabbbbcccc'), 'b': list('aabbccddeeff'),
+                   'c': randint(5, size=12), 'd': randint(9, size=12)})
+   df
+   df['a in b']
+
+   # How you'd do it in pure Python
+   df[df.b.isin(df.a)]
+
+   df['a not in b']
+
+   # pure Python
+   df[~df.b.isin(df.a)]
+
+
+You can, of course, combine this with other expressions for very succinct
+queries:
+
+
+.. ipython:: python
+
+   # get all rows where columns a and b have overlapping values and column c's values are less than column d's
+   df['a in b and c < d']
+
+   # pure Python
+   df[df.b.isin(df.a) & (df.c < df.d)]
+
+
+Comparing a ``list`` of values (including a ``list`` of strings) works the same
+way, but you have the option to use either ``==``/``in`` or ``!=``/``not in``:
+
+
+.. ipython:: python
+
+   df['b == ["a", "b", "c"]']
+
+   # pure Python
+   df[df.b.isin(["a", "b", "c"])]
+
+   df['c == [1, 2]']
+
+   # pure Python
+   df[df.c.isin([1, 2])]
+
 You can also negate boolean expressions with the word ``not`` or the ``~``
 operator.
 
@@ -1065,6 +1121,12 @@ Of course, expressions can be arbitrarily complex too
    yuck
 
    yuck == pretty
+
+
+.. ipython:: python
+   :suppress:
+
+   d = old_d
 
 .. _indexing.class:
 
