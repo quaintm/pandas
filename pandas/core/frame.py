@@ -1925,7 +1925,7 @@ class DataFrame(NDFrame):
         might want to get the rows of a ``data.frame`` where one columns values
         are less than another columns values:
 
-            .. code-block:: R
+            .. code-block:: r
 
                df <- data.frame(a=rnorm(10), b=rnorm(10))
                subset(df, a <= b)
@@ -2016,7 +2016,7 @@ class DataFrame(NDFrame):
         n R with the columns "a" and "b" could be evaluated using ``with`` like
         so:
 
-            .. code-block:: R
+            .. code-block:: r
 
                df <- data.frame(a=rnorm(10), b=rnorm(10))
                with(df, a + b)
