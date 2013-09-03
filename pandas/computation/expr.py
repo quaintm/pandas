@@ -42,7 +42,13 @@ def _check_disjoint_resolver_names(resolver_keys, local_keys, global_keys):
 def _replacer(x, pad_size):
     # get the hex repr of the binary char and remove 0x and pad by pad_size
     # zeros
-    return hex(ord(x)).replace('0x', '').rjust(pad_size, '0')
+    try:
+        hexin = ord(x)
+    except TypeError:
+        # bytes literals masquerade as ints when iterating in py3
+        hexin = x
+
+    return hex(hexin).replace('0x', '').rjust(pad_size, '0')
 
 
 def _raw_hex_id(obj, pad_size=2):
